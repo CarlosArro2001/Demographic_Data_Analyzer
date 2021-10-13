@@ -31,36 +31,20 @@ def calculate_demographic_data(print_data=True):
 
     # What percentage of the people who work the minimum number of hours per week have a salary of >50K?
     num_min_workers = len(df.loc[(df['hours-per-week'] == min_work_hours) & (df["salary"]==">50K")]) 
-
     rich_percentage = (num_min_workers/ len(df.loc[df['hours-per-week']==min_work_hours]))*100
-
     # What country has the highest percentage of people that earn >50K?
     #assuming that there are a lot of countries in the csv file
-    countries = df['native-country'].unique().tolist()
     #storing the countries population in a list
-    countries_populations=[]
-    for country in countries:
-        countries_populations.append(len(df.loc[df['native-country']==country]))
-    countries_rich_population = []
-    for country in countries:
-        countries_rich_population.append(len(df.loc[(df['native-country']==country) & (df['salary']==">50K")]))
-    countries_rich_percentage = []
-    x = 0 
-    while(x <len(countries)):
-        percentage = (countries_rich_population[x]/countries_populations[x])*100
-        countries_rich_percentage.append(percentage)
-        x+=1   
-
-    highest_earning_country = countries[countries_rich_percentage.index(max(countries_rich_percentage))]
-    highest_earning_country_percentage = round(max(countries_rich_percentage),1)
+    rich_populations = []
+    for i in df['native-country'].unique().tolist():
+      rich_populations.append(round(len(df.loc[(df['native-country']==i)&(df['salary']==">50K")])/len(df[df['native-country']==i])*100,1))
+    highest_earning_country = df['native-country'].unique().tolist()[rich_populations.index(max(rich_populations))] 
+    highest_earning_country_percentage = max(rich_populations)
 
     # Identify the most popular occupation for those who earn >50K in India.
-    occupation = df['occupation'].unique().tolist()
-    indians_rich = df.loc[(df['native-country']=="India") & (df['salary'] == ">50K")]
-    job_count = []
-    for i in occupation:
-        job_count.append(indians_rich['occupation'].tolist().count(i))
-    top_IN_occupation = occupation[job_count.index(max(job_count))]
+    occ_count = df.loc[(df['native-country']=='India') &(df['salary']==">50K")].groupby('occupation').size().tolist()
+    top_IN_occupation = sorted(df.loc[(df['native-country']=='India') & (df['salary']==">50K")].occupation.unique().tolist())[occ_count.index(max(occ_count))]
+
 
     # DO NOT MODIFY BELOW THIS LINE
 
